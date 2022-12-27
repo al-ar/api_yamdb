@@ -11,5 +11,4 @@ router.register(r'genres', GenreViewSet, basename='genres')
 
 
 urlpatterns = [
-    path('', include(router.urls)),
-    ]
+    path('', include(router.urls)),]
