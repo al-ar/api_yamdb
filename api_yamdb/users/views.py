@@ -5,7 +5,7 @@ from django.core.mail import send_mail
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404, CreateAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -19,21 +19,18 @@ from .permissions import IsAdminOrSuperuser
 User = get_user_model()
 
 
-class SignupView(APIView):
+class SignupView(CreateAPIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
-        username = request.data.get('username')
-        email = request.data.get('email')
-        if User.objects.filter(username=username).exists():
-            if User.objects.get(username=username).email != email:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            self.send_confirmation_code(request, username)
-            return Response(status=status.HTTP_200_OK)
-        serializer = serializers.SignupSerializer(data=self.request.data)
+        serializer = serializers.SignupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
-        self.send_confirmation_code(request, username)
+        username = serializer.validated_data.get('username')
+        email = serializer.validated_data.get('email')
+        user, created = User.objects.get_or_create(username=username,
+                                                   email=email)
+
+        self.send_confirmation_code(request, user)
         return Response(serializer.data)
 
     def send_confirmation_code(self, request, username):

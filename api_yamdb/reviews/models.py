@@ -8,6 +8,9 @@ class Category(models.Model):
     slug = models.SlugField(
         max_length=50, unique=True, verbose_name='URL')
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return self.name
 
@@ -17,6 +20,9 @@ class Genre(models.Model):
     slug = models.SlugField(
         max_length=50, unique=True, verbose_name='URL')
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return self.name
 
@@ -25,7 +31,7 @@ class Title(models.Model):
     name = models.CharField(
         max_length=256,
         verbose_name='Название произведения')
-    year = models.IntegerField()
+    year = models.PositiveIntegerField(db_index=True)
     description = models.TextField(
         verbose_name='Описание')
     category = models.ForeignKey(
@@ -39,6 +45,9 @@ class Title(models.Model):
         verbose_name='Жанр произведения',
         blank=True
     )
+
+    class Meta:
+        ordering = ['name']
 
     def __str__(self):
         return self.name
@@ -54,7 +63,7 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='reviews',
     )
-    score = models.IntegerField(validators=[
+    score = models.PositiveIntegerField(validators=[
         MinValueValidator(1),
         MaxValueValidator(10)
     ])
@@ -90,6 +99,9 @@ class Comment(models.Model):
 class GenreTitle(models.Model):
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ['genre']
 
     def __str__(self):
         return f'{self.title} в жанре {self.genre}'
