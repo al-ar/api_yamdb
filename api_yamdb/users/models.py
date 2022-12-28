@@ -2,13 +2,10 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
-USER = 'user'
-MODERATOR = 'moderator'
-ADMIN = 'admin'
-
-
 class User(AbstractUser):
-
+    USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
     ROLE = [
         ('user', USER),
         ('moderator', MODERATOR),
@@ -33,9 +30,9 @@ class User(AbstractUser):
         return self.role == User.MODERATOR
 
     def save(self, *args, **kwargs):
-        if self.role == MODERATOR:
+        if self.role == self.MODERATOR:
             self.is_staff = True
-        if self.role == ADMIN:
+        if self.role == self.ADMIN:
             self.is_superuser = True
         super(User, self).save(*args, **kwargs)
 
